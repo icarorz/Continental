@@ -3,30 +3,58 @@
 <head>
   <meta charset="UTF-8" />
   <title>Juego Continental - Mini App</title>
-  <!-- Hoja de estilos de Bootstrap -->
+  <!-- Hoja de estilos de Bootstrap (CDN) -->
   <link 
     rel="stylesheet" 
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" 
     integrity="sha384-ENjdO4Dr2bkBIFxQpeHehFVn1bNtdfHniPn9ABg5yLLhf/EpZXH9IhRJ9LYBF8xD" 
     crossorigin="anonymous"
   >
-
+  <!-- Estilos personalizados -->
   <style>
-    /* Puedes mantener o agregar estilos personalizados si lo deseas */
+    /* Fondo con un degradado ligero */
+    body {
+      background: linear-gradient(to right, #f6f0c4, #dae2f8);
+      min-height: 100vh;
+    }
+
+    /* Para "esconder" elementos cuando sea necesario */
     .hidden {
       display: none !important;
+    }
+
+    /* Algunas cartas pueden tener un color sutil */
+    .custom-card {
+      background-color: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(2px);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    /* Ajustar opacidad o color del header dentro de la card */
+    .custom-card-header {
+      background-color: rgba(255, 255, 255, 0.5);
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+
+    /* Títulos con algo de estilo */
+    h1, h2, h3 {
+      font-weight: 600;
+    }
+    
+    /* Ajuste de paddings y márgenes */
+    .my-section {
+      margin-bottom: 2rem;
     }
   </style>
 </head>
 <body>
-  <!-- Contenedor principal de Bootstrap -->
-  <div class="container my-4">
+  <div class="container py-4">
 
     <h1 class="text-center mb-4">Continental - Mini Aplicación</h1>
 
     <!-- Sección Alta de Jugadores -->
-    <div class="player-registration card p-3 mb-4">
-      <h2>Alta de Jugadores</h2>
+    <div class="player-registration custom-card p-3 mb-4">
+      <h2 class="mb-3">Alta de Jugadores</h2>
       <div class="input-group mb-3">
         <input 
           type="text" 
@@ -39,7 +67,7 @@
       </div>
 
       <div class="player-list mb-3">
-        <h3>Jugadores registrados:</h3>
+        <h4>Jugadores registrados:</h4>
         <ul id="playerList" class="list-group"></ul>
       </div>
 
@@ -53,14 +81,17 @@
     </div>
 
     <!-- Sección Información de la Ronda -->
-    <div class="round-info card p-3 mb-4 hidden" id="roundInfoSection">
-      <h2>
-        Ronda <span id="roundNumber"></span>: 
-        <small class="text-muted" id="roundDescription"></small>
-      </h2>
+    <div class="round-info custom-card p-3 mb-4 hidden" id="roundInfoSection">
+      <div class="custom-card-header p-2 mb-3 rounded">
+        <h2 class="m-0">
+          Ronda <span id="roundNumber"></span>: 
+          <small class="text-muted" id="roundDescription"></small>
+        </h2>
+      </div>
+      
       <p class="mb-3">
         <strong>Reparte:</strong> 
-        <span id="dealerName" class="badge text-bg-primary"></span>
+        <span id="dealerName" class="badge bg-primary"></span>
       </p>
       
       <div>
@@ -76,11 +107,11 @@
     </div>
 
     <!-- Sección Tabla de Puntuaciones -->
-    <div class="score-table card p-3 mb-4 hidden" id="scoreTableSection">
-      <h2>Puntuaciones Acumuladas</h2>
+    <div class="score-table custom-card p-3 mb-4 hidden" id="scoreTableSection">
+      <h2 class="mb-3">Puntuaciones Acumuladas</h2>
       <div class="table-responsive">
         <table class="table table-striped table-bordered text-center align-middle">
-          <thead class="table-light">
+          <thead class="table-dark">
             <tr>
               <th>Jugador</th>
               <th>Ronda 1</th>
@@ -93,13 +124,13 @@
               <th>Total Puntos</th>
             </tr>
           </thead>
-          <tbody id="scoreTableBody"></tbody>
+          <tbody id="scoreTableBody" class="table-group-divider"></tbody>
         </table>
       </div>
     </div>
 
     <!-- Sección Ranking Final -->
-    <div class="card p-3 mb-4 hidden" id="finalRankingSection">
+    <div class="custom-card p-3 mb-4 hidden" id="finalRankingSection">
       <h2>Ranking Final</h2>
       <ol id="finalRankingList" class="list-group list-group-numbered mb-3"></ol>
       <button 
@@ -110,15 +141,16 @@
       </button>
     </div>
 
-  </div><!-- Fin contenedor principal -->
+  </div><!-- Fin .container -->
 
-  <!-- Scripts de Bootstrap (opcional, si necesitas funcionalidad JS de Bootstrap) -->
+  <!-- Scripts de Bootstrap (CDN) -->
   <script 
     src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" 
     integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+Ryfj9EN5rG7vo0I8quq6UBLGSeJ6" 
     crossorigin="anonymous">
   </script>
 
+  <!-- Lógica de la aplicación -->
   <script>
     // --- Variables globales ---
     let players = [];
@@ -187,10 +219,10 @@
       container.innerHTML = "";
       players.forEach((player, index) => {
         const div = document.createElement("div");
-        div.classList.add("col-12", "col-sm-6", "col-md-4", "mb-3");
+        div.classList.add("col-12", "col-md-6", "col-lg-4", "mb-3");
 
         const label = document.createElement("label");
-        label.classList.add("form-label", "me-2");
+        label.classList.add("form-label", "fw-semibold");
         label.textContent = `Puntos de ${player.name}:`;
 
         const input = document.createElement("input");
