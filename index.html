@@ -3,110 +3,125 @@
 <head>
   <meta charset="UTF-8" />
   <title>Juego Continental - Mini App</title>
+  <!-- Hoja de estilos de Bootstrap -->
+  <link 
+    rel="stylesheet" 
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" 
+    integrity="sha384-ENjdO4Dr2bkBIFxQpeHehFVn1bNtdfHniPn9ABg5yLLhf/EpZXH9IhRJ9LYBF8xD" 
+    crossorigin="anonymous"
+  >
+
   <style>
-    /* Estilos básicos, puedes moverlos a style.css si prefieres */
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      padding: 0;
-    }
-
-    h1, h2, h3 {
-      margin-bottom: 10px;
-    }
-
-    input[type="text"] {
-      padding: 5px;
-    }
-
-    button {
-      margin: 5px 0;
-      padding: 8px 12px;
-      cursor: pointer;
-    }
-
-    .player-list, .round-info, .score-table {
-      margin-bottom: 20px;
-      border: 1px solid #ccc;
-      padding: 10px;
-      border-radius: 5px;
-    }
-
-    .score-table table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    .score-table th, .score-table td {
-      border: 1px solid #ccc;
-      padding: 8px;
-      text-align: center;
-    }
-
+    /* Puedes mantener o agregar estilos personalizados si lo deseas */
     .hidden {
-      display: none;
+      display: none !important;
     }
   </style>
 </head>
 <body>
-  <h1>Continental - Mini Aplicación</h1>
-  
-  <!-- Sección Alta de Jugadores -->
-  <div class="player-registration">
-    <h2>Alta de Jugadores</h2>
-    <input type="text" id="playerNameInput" placeholder="Nombre del jugador" />
-    <button onclick="addPlayer()">Añadir Jugador</button>
-    <div class="player-list">
-      <h3>Jugadores registrados:</h3>
-      <ul id="playerList"></ul>
+  <!-- Contenedor principal de Bootstrap -->
+  <div class="container my-4">
+
+    <h1 class="text-center mb-4">Continental - Mini Aplicación</h1>
+
+    <!-- Sección Alta de Jugadores -->
+    <div class="player-registration card p-3 mb-4">
+      <h2>Alta de Jugadores</h2>
+      <div class="input-group mb-3">
+        <input 
+          type="text" 
+          id="playerNameInput" 
+          class="form-control" 
+          placeholder="Nombre del jugador" 
+          aria-label="Nombre del jugador"
+        />
+        <button class="btn btn-primary" onclick="addPlayer()">Añadir Jugador</button>
+      </div>
+
+      <div class="player-list mb-3">
+        <h3>Jugadores registrados:</h3>
+        <ul id="playerList" class="list-group"></ul>
+      </div>
+
+      <button 
+        id="startGameBtn" 
+        onclick="startGame()" 
+        class="btn btn-success hidden"
+      >
+        Iniciar Partida
+      </button>
     </div>
-    <button id="startGameBtn" onclick="startGame()" class="hidden">Iniciar Partida</button>
-  </div>
 
-  <!-- Sección Información de la Ronda -->
-  <div class="round-info hidden" id="roundInfoSection">
-    <h2>Ronda <span id="roundNumber"></span>: <span id="roundDescription"></span></h2>
-    <p><strong>Reparte:</strong> <span id="dealerName"></span></p>
-    <div>
-      <h3>Introduce puntos de esta ronda</h3>
-      <div id="playersInputPoints"></div>
-      <button onclick="submitRoundPoints()">Registrar Puntos y Pasar a la Siguiente Ronda</button>
+    <!-- Sección Información de la Ronda -->
+    <div class="round-info card p-3 mb-4 hidden" id="roundInfoSection">
+      <h2>
+        Ronda <span id="roundNumber"></span>: 
+        <small class="text-muted" id="roundDescription"></small>
+      </h2>
+      <p class="mb-3">
+        <strong>Reparte:</strong> 
+        <span id="dealerName" class="badge text-bg-primary"></span>
+      </p>
+      
+      <div>
+        <h3>Introduce puntos de esta ronda</h3>
+        <div id="playersInputPoints" class="row"></div>
+        <button 
+          class="btn btn-primary mt-3" 
+          onclick="submitRoundPoints()"
+        >
+          Registrar Puntos y Pasar a la Siguiente Ronda
+        </button>
+      </div>
     </div>
-  </div>
 
-  <!-- Sección Tabla de Puntuaciones -->
-  <div class="score-table hidden" id="scoreTableSection">
-    <h2>Puntuaciones Acumuladas</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Jugador</th>
-          <th>Ronda 1</th>
-          <th>Ronda 2</th>
-          <th>Ronda 3</th>
-          <th>Ronda 4</th>
-          <th>Ronda 5</th>
-          <th>Ronda 6</th>
-          <th>Ronda 7</th>
-          <th>Total Puntos</th>
-        </tr>
-      </thead>
-      <tbody id="scoreTableBody"></tbody>
-    </table>
-  </div>
+    <!-- Sección Tabla de Puntuaciones -->
+    <div class="score-table card p-3 mb-4 hidden" id="scoreTableSection">
+      <h2>Puntuaciones Acumuladas</h2>
+      <div class="table-responsive">
+        <table class="table table-striped table-bordered text-center align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Jugador</th>
+              <th>Ronda 1</th>
+              <th>Ronda 2</th>
+              <th>Ronda 3</th>
+              <th>Ronda 4</th>
+              <th>Ronda 5</th>
+              <th>Ronda 6</th>
+              <th>Ronda 7</th>
+              <th>Total Puntos</th>
+            </tr>
+          </thead>
+          <tbody id="scoreTableBody"></tbody>
+        </table>
+      </div>
+    </div>
 
-  <!-- Sección Ranking Final -->
-  <div class="hidden" id="finalRankingSection">
-    <h2>Ranking Final</h2>
-    <ol id="finalRankingList"></ol>
-    <button onclick="restartGame()">Iniciar una nueva partida</button>
-  </div>
+    <!-- Sección Ranking Final -->
+    <div class="card p-3 mb-4 hidden" id="finalRankingSection">
+      <h2>Ranking Final</h2>
+      <ol id="finalRankingList" class="list-group list-group-numbered mb-3"></ol>
+      <button 
+        class="btn btn-warning" 
+        onclick="restartGame()"
+      >
+        Iniciar una nueva partida
+      </button>
+    </div>
+
+  </div><!-- Fin contenedor principal -->
+
+  <!-- Scripts de Bootstrap (opcional, si necesitas funcionalidad JS de Bootstrap) -->
+  <script 
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" 
+    integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+Ryfj9EN5rG7vo0I8quq6UBLGSeJ6" 
+    crossorigin="anonymous">
+  </script>
 
   <script>
     // --- Variables globales ---
-    // Lista de jugadores, cada jugador será un objeto { name: string, points: [array de puntos de cada ronda], total: number }
     let players = [];
-    // Rondas (descripción)
     const roundsDescription = [
       "Dos tríos",
       "Dos escaleras",
@@ -116,9 +131,7 @@
       "Tres escaleras",
       "Dos tríos, Dos escaleras"
     ];
-    // Índice de la ronda actual (0-based para fácil manejo en arrays)
     let currentRound = 0;
-    // Índice del jugador que reparte (basado en orden de alta)
     let dealerIndex = 0;
 
     // --- Funciones de registro de jugadores ---
@@ -126,10 +139,9 @@
       const input = document.getElementById("playerNameInput");
       const name = input.value.trim();
       if (name !== "") {
-        // Crea un objeto para el jugador
         players.push({
           name: name,
-          points: new Array(7).fill(null), // 7 rondas, inicializamos con null
+          points: new Array(7).fill(null),
           total: 0
         });
         input.value = "";
@@ -143,9 +155,9 @@
       players.forEach((player, index) => {
         const li = document.createElement("li");
         li.textContent = `${index + 1}. ${player.name}`;
+        li.classList.add("list-group-item");
         playerListElement.appendChild(li);
       });
-      // Mostrar botón "Iniciar Partida" si hay al menos 2 jugadores
       document.getElementById("startGameBtn").classList.toggle("hidden", players.length < 2);
     }
 
@@ -155,12 +167,10 @@
         alert("Debes tener al menos 2 jugadores para iniciar la partida.");
         return;
       }
-      // Ocultamos la sección de registro y mostramos la info de la ronda
       document.querySelector(".player-registration").classList.add("hidden");
       document.getElementById("roundInfoSection").classList.remove("hidden");
       document.getElementById("scoreTableSection").classList.remove("hidden");
 
-      // Iniciar con la ronda 1
       currentRound = 0;
       dealerIndex = 0;
       initializeScoreTable();
@@ -169,26 +179,24 @@
 
     // --- Mostramos la información de la ronda actual ---
     function showRoundInfo() {
-      // Actualizar texto de ronda y descripción
       document.getElementById("roundNumber").textContent = currentRound + 1;
       document.getElementById("roundDescription").textContent = roundsDescription[currentRound];
-      // Mostrar quién reparte
       document.getElementById("dealerName").textContent = players[dealerIndex].name;
 
-      // Generar inputs para los puntos
       const container = document.getElementById("playersInputPoints");
       container.innerHTML = "";
       players.forEach((player, index) => {
         const div = document.createElement("div");
-        div.style.marginBottom = "8px";
-        
+        div.classList.add("col-12", "col-sm-6", "col-md-4", "mb-3");
+
         const label = document.createElement("label");
-        label.textContent = `Puntos de ${player.name}: `;
+        label.classList.add("form-label", "me-2");
+        label.textContent = `Puntos de ${player.name}:`;
 
         const input = document.createElement("input");
         input.type = "number";
         input.id = `pointsInput-${index}`;
-        input.style.width = "80px";
+        input.classList.add("form-control", "mt-1");
 
         div.appendChild(label);
         div.appendChild(input);
@@ -196,53 +204,45 @@
       });
     }
 
-    // --- Registrar los puntos de la ronda actual y pasar a la siguiente ---
+    // --- Registrar los puntos y pasar a la siguiente ronda ---
     function submitRoundPoints() {
-      // Tomar los valores de los inputs y actualizarlos en el array
       players.forEach((player, index) => {
         const input = document.getElementById(`pointsInput-${index}`);
-        const roundPoints = parseInt(input.value) || 0; // Si no ingresan nada, asumimos 0
+        const roundPoints = parseInt(input.value) || 0;
         player.points[currentRound] = roundPoints;
       });
-
-      // Actualizar la tabla de puntuaciones
       updateScoreTable();
-
-      // Mover al siguiente repartidor
       dealerIndex = (dealerIndex + 1) % players.length;
 
-      // Verificar si ya hemos llegado a la última ronda (7)
       if (currentRound === 6) {
-        // Mostrar ranking final
         showFinalRanking();
       } else {
-        // Siguiente ronda
         currentRound++;
         showRoundInfo();
       }
     }
 
-    // --- Inicializar la tabla de puntuaciones en pantalla ---
+    // --- Inicializar la tabla de puntuaciones ---
     function initializeScoreTable() {
       const tbody = document.getElementById("scoreTableBody");
       tbody.innerHTML = "";
       players.forEach((player) => {
         const row = document.createElement("tr");
 
-        // Nombre del jugador
+        // Nombre
         const nameCell = document.createElement("td");
         nameCell.textContent = player.name;
         row.appendChild(nameCell);
 
-        // 7 celdas para las 7 rondas
+        // Rondas 1-7
         for (let i = 0; i < 7; i++) {
           const roundCell = document.createElement("td");
-          roundCell.id = `score-${player.name}-r${i + 1}`; 
-          roundCell.textContent = "-"; // inicial
+          roundCell.id = `score-${player.name}-r${i + 1}`;
+          roundCell.textContent = "-";
           row.appendChild(roundCell);
         }
 
-        // Total de puntos
+        // Total
         const totalCell = document.createElement("td");
         totalCell.id = `total-${player.name}`;
         totalCell.textContent = "0";
@@ -255,7 +255,6 @@
     // --- Actualizar tabla de puntuaciones ---
     function updateScoreTable() {
       players.forEach((player) => {
-        // Actualizar cada ronda en la tabla
         for (let i = 0; i < 7; i++) {
           const roundCell = document.getElementById(`score-${player.name}-r${i + 1}`);
           if (player.points[i] !== null) {
@@ -264,7 +263,6 @@
             roundCell.textContent = "-";
           }
         }
-        // Calcular total
         const sum = player.points.reduce((acc, val) => acc + (val || 0), 0);
         player.total = sum;
         document.getElementById(`total-${player.name}`).textContent = sum;
@@ -273,45 +271,37 @@
 
     // --- Mostrar Ranking Final ---
     function showFinalRanking() {
-      // Ocultamos el formulario de puntos
       document.getElementById("roundInfoSection").classList.add("hidden");
-      
-      // Mostrar la sección de ranking final
+
       const finalRankingSection = document.getElementById("finalRankingSection");
       finalRankingSection.classList.remove("hidden");
 
-      // Ordenar jugadores por total ascendente (menos puntos es mejor)
       const sortedPlayers = [...players].sort((a, b) => a.total - b.total);
-
       const rankingList = document.getElementById("finalRankingList");
       rankingList.innerHTML = "";
       sortedPlayers.forEach((player) => {
         const li = document.createElement("li");
         li.textContent = `${player.name} - ${player.total} puntos`;
+        li.classList.add("list-group-item");
         rankingList.appendChild(li);
       });
     }
 
-    // --- Reiniciar la partida con los mismos jugadores ---
+    // --- Reiniciar la partida ---
     function restartGame() {
-      // Resetear la info de cada jugador
       players.forEach((player) => {
         player.points = new Array(7).fill(null);
         player.total = 0;
       });
-
-      // Regresar al estado inicial
       currentRound = 0;
       dealerIndex = 0;
 
-      // Volver a mostrar la sección de rondas y la tabla
       document.getElementById("roundInfoSection").classList.remove("hidden");
       document.getElementById("finalRankingSection").classList.add("hidden");
 
       initializeScoreTable();
       showRoundInfo();
     }
-
   </script>
 </body>
 </html>
