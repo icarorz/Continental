@@ -3,17 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <title>Continental</title>
-  <!-- Viewport meta para diseño responsive real en móviles -->
+  <!-- Viewport para diseño responsive en móviles -->
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  
-  <!-- Bootstrap CSS (CDN) con los códigos de integridad que envías -->
+
+  <!-- Bootstrap CSS (CDN) con integridad adaptada -->
   <link 
     rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
     integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
     crossorigin="anonymous"
   >
-
   <style>
     /* Fondo con un degradado suave */
     body {
@@ -21,7 +20,7 @@
       min-height: 100vh;
     }
 
-    /* Ocultar elementos según convenga */
+    /* Ocultar elementos si es necesario */
     .hidden {
       display: none !important;
     }
@@ -32,19 +31,19 @@
       backdrop-filter: blur(2px);
       border: 1px solid rgba(0, 0, 0, 0.1);
     }
-
     .custom-card-header {
       background-color: rgba(255, 255, 255, 0.5);
       border-bottom: 1px solid rgba(0,0,0,0.1);
     }
 
-    /* Resaltar líder (menos puntos) y último (más puntos) */
-    .bg-leading {
-      background-color: #e0e0e0 !important; /* Gris claro */
+    /* Resaltar ganador y perdedor */
+    .bg-winner {
+      background-color: #d4edda !important; /* verde suave */
     }
     .bg-loser {
-      background-color: #ffe9cc !important; /* Naranja clarito */
+      background-color: #fff3cd !important; /* naranja suave */
     }
+
   </style>
 </head>
 <body>
@@ -89,9 +88,10 @@
         </h2>
       </div>
 
+      <!-- Banner del repartidor más grande -->
       <p class="mb-3">
         <strong>Reparte:</strong>
-        <span id="dealerName" class="badge bg-primary"></span>
+        <span id="dealerName" class="badge text-bg-primary fs-4 px-3 py-2"></span>
       </p>
 
       <div>
@@ -148,7 +148,7 @@
 
   </div><!-- Fin .container -->
 
-  <!-- Bootstrap JavaScript (CDN) con el código de integridad que envías -->
+  <!-- Bootstrap JS (CDN) con integridad adaptada -->
   <script
     src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
@@ -171,6 +171,9 @@
     ];
     let currentRound = 0;
     let dealerIndex = 0;
+
+    // Índice del jugador que obtiene la jugada de -10. -1 = nadie.
+    let bonusIndex = -1;
 
     /* Agregar jugador */
     function addPlayer() {
@@ -221,32 +224,88 @@
       document.getElementById("roundDescription").textContent = roundsDescription[currentRound];
       document.getElementById("dealerName").textContent = players[dealerIndex].name;
 
+      // Al cambiar de ronda, nadie tiene el bonus todavía
+      bonusIndex = -1;
+
       const container = document.getElementById("playersInputPoints");
       container.innerHTML = "";
+
       players.forEach((player, index) => {
         const div = document.createElement("div");
-        div.classList.add("col-12", "col-md-6", "col-lg-4", "mb-3");
+        // Ajustar las columnas para que quepan 4 jugadores en la misma fila (en pantallas grandes)
+        // col-6 => 2 campos por fila en móviles horizontales
+        // col-md-3 => 4 campos por fila en tablet/pc
+        div.classList.add("col-6", "col-md-3", "mb-3");
 
+        // Etiqueta con el nombre
         const label = document.createElement("label");
         label.classList.add("form-label", "fw-semibold");
         label.textContent = `Puntos de ${player.name}:`;
 
+        // Input de número
         const input = document.createElement("input");
         input.type = "number";
         input.id = `pointsInput-${index}`;
         input.classList.add("form-control", "mt-1");
 
+        // Checkbox -10
+        const checkboxDiv = document.createElement("div");
+        checkboxDiv.classList.add("form-check", "mt-2");
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.classList.add("form-check-input");
+        checkbox.id = `bonusCheck-${index}`;
+        checkbox.onchange = () => handleBonusCheck(index, checkbox.checked);
+
+        const checkboxLabel = document.createElement("label");
+        checkboxLabel.textContent = "¿-10?";
+        checkboxLabel.classList.add("form-check-label", "ms-1");
+        checkboxLabel.setAttribute("for", `bonusCheck-${index}`);
+
+        checkboxDiv.appendChild(checkbox);
+        checkboxDiv.appendChild(checkboxLabel);
+
         div.appendChild(label);
         div.appendChild(input);
+        div.appendChild(checkboxDiv);
         container.appendChild(div);
       });
+    }
+
+    /* Lógica para el checkbox de -10 */
+    function handleBonusCheck(playerIndex, isChecked) {
+      if (isChecked) {
+        // Si marcamos a este jugador con -10, desmarcamos y deshabilitamos el resto
+        bonusIndex = playerIndex;
+        players.forEach((_, i) => {
+          const cb = document.getElementById(`bonusCheck-${i}`);
+          if (i !== playerIndex) {
+            cb.checked = false;
+            cb.disabled = true;
+          }
+        });
+      } else {
+        // Si lo desmarcamos, entonces volvemos a habilitar todos
+        bonusIndex = -1;
+        players.forEach((_, i) => {
+          const cb = document.getElementById(`bonusCheck-${i}`);
+          cb.disabled = false;
+        });
+      }
     }
 
     /* Registrar puntos y pasar a la siguiente ronda */
     function submitRoundPoints() {
       players.forEach((player, index) => {
         const input = document.getElementById(`pointsInput-${index}`);
-        const roundPoints = parseInt(input.value) || 0;
+        let roundPoints = parseInt(input.value) || 0;
+
+        // Si este jugador tiene el bonus -10, se le restan 10 puntos
+        if (index === bonusIndex) {
+          roundPoints -= 10;
+        }
+
         player.points[currentRound] = roundPoints;
       });
       updateScoreTable();
@@ -269,17 +328,17 @@
         const row = document.createElement("tr");
         row.id = `row-${index}`;
 
-        // Columna #
+        // # Jugador
         const indexCell = document.createElement("td");
         indexCell.textContent = index + 1;
         row.appendChild(indexCell);
 
-        // Columna Nombre
+        // Nombre
         const nameCell = document.createElement("td");
         nameCell.textContent = player.name;
         row.appendChild(nameCell);
 
-        // Columnas Rondas 1 a 7
+        // 7 celdas de cada ronda
         for (let i = 0; i < 7; i++) {
           const roundCell = document.createElement("td");
           roundCell.id = `score-${index}-r${i + 1}`;
@@ -287,7 +346,7 @@
           row.appendChild(roundCell);
         }
 
-        // Columna Total
+        // Total
         const totalCell = document.createElement("td");
         totalCell.id = `total-${index}`;
         totalCell.textContent = "0";
@@ -297,7 +356,7 @@
       });
     }
 
-    /* Actualizar tabla y resaltar líder/último */
+    /* Actualizar tabla y destacar ganador/perdedor */
     function updateScoreTable() {
       players.forEach((player, index) => {
         let sum = 0;
@@ -305,7 +364,7 @@
           const roundPoints = player.points[i] ?? 0;
           sum += roundPoints;
           const roundCell = document.getElementById(`score-${index}-r${i + 1}`);
-          roundCell.textContent = roundPoints !== null ? roundPoints : "-";
+          roundCell.textContent = roundPoints || roundPoints === 0 ? roundPoints : "-";
         }
         player.total = sum;
         document.getElementById(`total-${index}`).textContent = sum;
@@ -321,10 +380,13 @@
       // Limpiar y volver a aplicar estilos
       players.forEach((player, index) => {
         const row = document.getElementById(`row-${index}`);
-        row.classList.remove("bg-leading", "bg-loser");
+        row.classList.remove("bg-winner", "bg-loser");
+
+        // Jugador con menos puntos => verde suave
         if (player.total === minPoints) {
-          row.classList.add("bg-leading");
+          row.classList.add("bg-winner");
         }
+        // Jugador con más puntos => naranja suave
         if (player.total === maxPoints) {
           row.classList.add("bg-loser");
         }
