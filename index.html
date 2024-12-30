@@ -14,16 +14,11 @@
     crossorigin="anonymous"
   >
   <style>
-    /* Fondo con un degradado suave */
     body {
       background: linear-gradient(to right, #f6f0c4, #dae2f8);
       min-height: 100vh;
     }
-
-    /* Para ocultar secciones cuando sea necesario */
-    .hidden {
-      display: none !important;
-    }
+    .hidden { display: none !important; }
 
     /* Tarjetas semitransparentes */
     .custom-card {
@@ -70,25 +65,21 @@
       <!-- Tabla para listar jugadores y marcar quién reparte -->
       <div class="player-list mb-3">
         <h4>Jugadores registrados:</h4>
-       <div class="table-responsive">
-  <table class="table table-bordered align-middle" id="playersTable">
-    <!-- Definir anchos para cada columna -->
-    <colgroup>
-      <!-- La primera columna (con el checkbox) muy estrecha -->
-      <col style="width: 10%;">
-      <!-- La segunda columna (nombre del jugador) ocupa el resto -->
-      <col style="width: 90%;">
-    </colgroup>
-    <thead class="table-light">
-      <tr>
-        <th scope="col">Reparte</th>
-        <th scope="col">Jugador</th>
-      </tr>
-    </thead>
-    <tbody id="playerListBody"></tbody>
-  </table>
-</div>
-
+        <div class="table-responsive">
+          <table class="table table-bordered align-middle" id="playersTable">
+            <colgroup>
+              <col style="width: 5%;">
+              <col style="width: 95%;">
+            </colgroup>
+            <thead class="table-light">
+              <tr>
+                <th scope="col">Empieza Repartiendo</th>
+                <th scope="col">Jugador</th>
+              </tr>
+            </thead>
+            <tbody id="playerListBody"></tbody>
+          </table>
+        </div>
       </div>
 
       <!-- Botón para iniciar la partida -->
@@ -101,32 +92,47 @@
       </button>
     </div>
 
-    <!-- Sección Información de la Ronda -->
+    <!-- Sección Información de la Ronda y formulario colapsable -->
     <div class="round-info custom-card p-3 mb-4 hidden" id="roundInfoSection">
-      <div class="custom-card-header p-2 mb-3 rounded">
-        <h2 class="m-0">
-          Ronda <span id="roundNumber"></span>:
-          <small class="text-muted" id="roundDescription"></small>
-        </h2>
+      <!-- Encabezado con ronda y dealer -->
+      <div class="custom-card-header p-2 mb-3 rounded d-flex align-items-center justify-content-between">
+        <div>
+          <h2 class="m-0">
+            Ronda <span id="roundNumber"></span>: 
+            <small class="text-muted" id="roundDescription"></small>
+          </h2>
+          <p class="mb-0">
+            <strong>Reparte: </strong>
+            <span id="dealerName" class="badge text-bg-primary fs-4 px-3 py-2"></span>
+          </p>
+        </div>
+        <!-- Botón que colapsa/expande el formulario de puntos -->
+        <button 
+          class="btn btn-secondary" 
+          type="button" 
+          data-bs-toggle="collapse" 
+          data-bs-target="#collapseRoundForm" 
+          aria-expanded="true" 
+          aria-controls="collapseRoundForm"
+        >
+          Alta de Puntuaciones
+        </button>
       </div>
 
-      <!-- Banner del repartidor más grande -->
-      <p class="mb-3">
-        <strong>Reparte:</strong>
-        <span id="dealerName" class="badge text-bg-primary fs-4 px-3 py-2"></span>
-      </p>
-
-      <div>
-        <h3>Introduce puntos de esta ronda</h3>
-        <!-- row para inputs y checkbox -10 -->
-        <div id="playersInputPoints" class="row"></div>
-        
-        <button
-          class="btn btn-primary mt-3"
-          onclick="submitRoundPoints()"
-        >
-          Registrar Puntos y Pasar a la Siguiente Ronda
-        </button>
+      <!-- Contenido colapsable: inputs de puntos y checkbox -10 -->
+      <div id="collapseRoundForm" class="collapse show">
+        <div>
+          <h3>Introduce puntos de esta ronda</h3>
+          <div id="playersInputPoints" class="row">
+            <!-- Se generan dinámicamente los inputs de cada jugador -->
+          </div>
+          <button
+            class="btn btn-primary mt-3"
+            onclick="submitRoundPoints()"
+          >
+            Registrar Puntos y Pasar a la Siguiente Ronda
+          </button>
+        </div>
       </div>
     </div>
 
@@ -167,9 +173,9 @@
       </button>
     </div>
 
-  </div><!-- Fin container -->
+  </div><!-- Fin .container -->
 
-  <!-- Bootstrap JS (CDN) con integridad adaptada -->
+  <!-- Bootstrap JavaScript (CDN) para permitir collapse -->
   <script
     src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
@@ -196,13 +202,9 @@
     ];
 
     let currentRound = 0;
-    // Jugador que reparte en la ronda actual
-    let dealerIndex = 0;
-    // Jugador marcado para iniciar repartiendo (si se marcó)
-    let selectedDealerIndex = -1;
-
-    // Jugador con la jugada de -10 puntos en la ronda actual
-    let bonusIndex = -1; // -1 indica que nadie la tiene
+    let dealerIndex = 0;           // Jugador que reparte en la ronda
+    let selectedDealerIndex = -1;  // Marcado para iniciar repartiendo
+    let bonusIndex = -1;           // Jugador que obtiene -10 en la ronda
 
     /* Añadir un jugador a la lista */
     function addPlayer() {
@@ -219,7 +221,7 @@
       }
     }
 
-    /* Renderizar la tabla con jugadores y columna "Inicia Repartida" */
+    /* Renderizar la tabla con jugadores y columna "Empieza Repartiendo" */
     function renderPlayerList() {
       const tbody = document.getElementById("playerListBody");
       tbody.innerHTML = "";
@@ -227,26 +229,21 @@
       players.forEach((player, index) => {
         const tr = document.createElement("tr");
 
-        // Columna "Inicia Repartida" -> checkbox
+        // Columna checkbox
         const tdCheck = document.createElement("td");
         tdCheck.classList.add("text-center");
-
         const check = document.createElement("input");
         check.type = "checkbox";
         check.classList.add("form-check-input");
         check.id = `startDealerCheck-${index}`;
-        // Si ya se había marcado este como dealer, mantenlo
         if (selectedDealerIndex === index) {
           check.checked = true;
         }
-
-        // Solo uno puede marcarse
         check.onchange = () => handleDealerCheck(index, check.checked);
-
         tdCheck.appendChild(check);
         tr.appendChild(tdCheck);
 
-        // Columna "Jugador" -> nombre
+        // Columna nombre
         const tdName = document.createElement("td");
         tdName.textContent = player.name;
         tr.appendChild(tdName);
@@ -254,11 +251,11 @@
         tbody.appendChild(tr);
       });
 
-      // Mostrar el botón Iniciar Partida si 2+ jugadores
+      // Botón "Iniciar Partida" visible si 2+ jugadores
       document.getElementById("startGameBtn").classList.toggle("hidden", players.length < 2);
     }
 
-    /* Si marcamos un jugador, desmarcamos los otros (solo uno puede iniciar) */
+    /* Solo un jugador puede iniciar repartiendo */
     function handleDealerCheck(idx, isChecked) {
       if (isChecked) {
         selectedDealerIndex = idx;
@@ -268,7 +265,7 @@
           }
         });
       } else {
-        // Si se quita la marca y no se marca otra, no hay "iniciador"
+        // Si se desmarca y no se marca otro, no hay "iniciador" (= -1)
         selectedDealerIndex = -1;
       }
     }
@@ -282,10 +279,10 @@
       // Ocultamos la sección de alta
       document.querySelector(".player-registration").classList.add("hidden");
 
-      // Determinar quién reparte primero
+      // Determinar dealer inicial
       dealerIndex = selectedDealerIndex >= 0 ? selectedDealerIndex : 0;
 
-      // Mostramos secciones para rondas y puntuaciones
+      // Mostramos la info de ronda y la tabla de puntuaciones
       document.getElementById("roundInfoSection").classList.remove("hidden");
       document.getElementById("scoreTableSection").classList.remove("hidden");
 
@@ -296,30 +293,23 @@
 
     /* Mostrar la info de la ronda actual */
     function showRoundInfo() {
-      // Ronda y descripción
       document.getElementById("roundNumber").textContent = currentRound + 1;
       document.getElementById("roundDescription").textContent = roundsDescription[currentRound];
-      // Quién reparte
       document.getElementById("dealerName").textContent = players[dealerIndex].name;
-
-      // Al empezar cada ronda, nadie tiene el -10 todavía
       bonusIndex = -1;
 
       const container = document.getElementById("playersInputPoints");
       container.innerHTML = "";
 
+      // Creamos los campos de texto y check -10
       players.forEach((player, index) => {
         const div = document.createElement("div");
-        // col-6 => 2 por fila en móvil
-        // col-md-3 => 4 por fila en pantalla mediana/grande
         div.classList.add("col-6", "col-md-3", "mb-3");
 
-        // Etiqueta
         const label = document.createElement("label");
         label.classList.add("form-label", "fw-semibold");
         label.textContent = `Puntos de ${player.name}:`;
 
-        // Input
         const input = document.createElement("input");
         input.type = "number";
         input.id = `pointsInput-${index}`;
@@ -328,13 +318,13 @@
         // Checkbox -10
         const checkDiv = document.createElement("div");
         checkDiv.classList.add("form-check", "mt-2");
-        
+
         const check = document.createElement("input");
         check.type = "checkbox";
         check.classList.add("form-check-input");
         check.id = `bonusCheck-${index}`;
         check.onchange = () => handleBonusCheck(index, check.checked);
-        
+
         const checkLabel = document.createElement("label");
         checkLabel.classList.add("form-check-label", "ms-1");
         checkLabel.setAttribute("for", `bonusCheck-${index}`);
@@ -350,10 +340,9 @@
       });
     }
 
-    /* Manejamos el evento de marcar -10 en un jugador */
+    /* Gestionar el check -10: solo uno puede tenerlo */
     function handleBonusCheck(playerIndex, isChecked) {
       if (isChecked) {
-        // Este jugador se lleva el -10, deshabilitamos los demás
         bonusIndex = playerIndex;
         players.forEach((_, i) => {
           if (i !== playerIndex) {
@@ -363,7 +352,6 @@
           }
         });
       } else {
-        // Si se desmarca, volvemos a habilitar todos
         bonusIndex = -1;
         players.forEach((_, i) => {
           document.getElementById(`bonusCheck-${i}`).disabled = false;
@@ -371,24 +359,21 @@
       }
     }
 
-    /* Al registrar la ronda, guardamos puntos y rotamos el repartidor */
+    /* Guardar los puntos y pasar a la siguiente ronda */
     function submitRoundPoints() {
       players.forEach((player, index) => {
         const input = document.getElementById(`pointsInput-${index}`);
         let roundPoints = parseInt(input.value) || 0;
 
-        // Si este jugador tiene el -10, se le restan 10
         if (index === bonusIndex) {
           roundPoints -= 10;
         }
-
         player.points[currentRound] = roundPoints;
       });
 
       updateScoreTable();
 
       dealerIndex = (dealerIndex + 1) % players.length;
-
       if (currentRound === 6) {
         showFinalRanking();
       } else {
@@ -434,7 +419,7 @@
       });
     }
 
-    /* Actualizar la tabla y destacar ganador/perdedor */
+    /* Actualizar la tabla y destacar quien va ganando/perdiendo */
     function updateScoreTable() {
       players.forEach((player, index) => {
         let sum = 0;
@@ -445,12 +430,9 @@
           cell.textContent = roundPoints || roundPoints === 0 ? roundPoints : "-";
         }
         player.total = sum;
-
-        const totalCell = document.getElementById(`total-${index}`);
-        totalCell.textContent = sum;
+        document.getElementById(`total-${index}`).textContent = sum;
       });
 
-      // Hallar el min y max
       let minPoints = Infinity;
       let maxPoints = -Infinity;
       players.forEach((p) => {
@@ -458,7 +440,6 @@
         if (p.total > maxPoints) maxPoints = p.total;
       });
 
-      // Aplicar resaltado
       players.forEach((player, index) => {
         const row = document.getElementById(`row-${index}`);
         row.classList.remove("bg-winner", "bg-loser");
@@ -495,7 +476,6 @@
         player.total = 0;
       });
       currentRound = 0;
-      // Conservar el dealer inicial
       dealerIndex = selectedDealerIndex >= 0 ? selectedDealerIndex : 0;
 
       document.getElementById("roundInfoSection").classList.remove("hidden");
