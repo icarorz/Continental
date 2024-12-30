@@ -70,17 +70,25 @@
       <!-- Tabla para listar jugadores y marcar quién reparte -->
       <div class="player-list mb-3">
         <h4>Jugadores registrados:</h4>
-        <div class="table-responsive">
-          <table class="table table-bordered align-middle" id="playersTable">
-            <thead class="table-light">
-              <tr>
-                <th scope="col">Empieza Repartiendo</th>
-                <th scope="col">Jugador</th>
-              </tr>
-            </thead>
-            <tbody id="playerListBody"></tbody>
-          </table>
-        </div>
+       <div class="table-responsive">
+  <table class="table table-bordered align-middle" id="playersTable">
+    <!-- Definir anchos para cada columna -->
+    <colgroup>
+      <!-- La primera columna (con el checkbox) muy estrecha -->
+      <col style="width: 10%;">
+      <!-- La segunda columna (nombre del jugador) ocupa el resto -->
+      <col style="width: 90%;">
+    </colgroup>
+    <thead class="table-light">
+      <tr>
+        <th scope="col">Empieza Repartiendo</th>
+        <th scope="col">Jugador</th>
+      </tr>
+    </thead>
+    <tbody id="playerListBody"></tbody>
+  </table>
+</div>
+
       </div>
 
       <!-- Botón para iniciar la partida -->
